@@ -4,28 +4,30 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.support.JdbcDaoSupport;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
-import javax.sql.DataSource;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 
 @Transactional
-public abstract class AbstractDao<PK extends Serializable, T> extends JdbcDaoSupport {
+public abstract class AbstractDao<PK extends Serializable, T>  {
 
 
+    private JdbcTemplate jdbcTemplate;
     private final Class<T> persistentClass;
 
-    @Resource(name = "dataSource")
-    public void init(DataSource dataSource) {
-        setDataSource(dataSource);
+    @Autowired
+    public void init(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
-
     @SuppressWarnings("unchecked")
     public AbstractDao() {
         this.persistentClass = (Class<T>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[1];
+    }
+
+    public JdbcTemplate getJdbcTemplate() {
+        return jdbcTemplate;
     }
 
     @Autowired
@@ -36,16 +38,12 @@ public abstract class AbstractDao<PK extends Serializable, T> extends JdbcDaoSup
     }
 
     @SuppressWarnings("unchecked")
-    public T getByKey(PK key) {
+    public T findById(PK key) {
         return (T) getSession().get(persistentClass, key);
     }
 
-    public T merge(T entity) {
+    public T save(T entity) {
         return (T) getSession().merge(entity);
-    }
-
-    public void update(T entity) {
-        getSession().update(entity);
     }
 
     public void delete(T entity) {

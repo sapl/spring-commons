@@ -1,8 +1,10 @@
 package org.sapl.commons.dao;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
@@ -12,16 +14,43 @@ import java.util.Map;
 import java.util.TreeMap;
 
 
-@Repository
-@SuppressWarnings("unused")
-public class ConfigDaoImpl extends AbstractDao<String, String> implements ConfigDao {
+public class ConfigImpl implements Config {
 
+    private JdbcTemplate jdbcTemplate;
+
+    private static final String CACHE_NAME = "config";
+
+    @Autowired
+    public void init(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+        createTableIfNotExists();
+    }
+
+    private void createTableIfNotExists() {
+        try {
+            jdbcTemplate.execute("" +
+                    "CREATE TABLE IF NOT EXISTS config (" +
+                    "id INT AUTO_INCREMENT," +
+                    "name VARCHAR(120) NOT NULL," +
+                    "value text, " +
+                    "CONSTRAINT config_pkey PRIMARY KEY (id) " +
+                    ");");
+
+            jdbcTemplate.execute("CREATE UNIQUE INDEX config_udx ON config (name);");
+        } catch (Exception e) {
+            //
+        }
+    }
 
     @Override public Map getAll() {
         TreeMap<String, String> map = new TreeMap<>();
         List<Map<String, Object>> rows = getJdbcTemplate().queryForList("SELECT * FROM config ORDER BY name");
         for (Map row : rows) map.put((String) row.get("name"), (String) row.get("value"));
         return map;
+    }
+
+    private JdbcTemplate getJdbcTemplate() {
+        return jdbcTemplate;
     }
 
     @Override public Date getDate(String name) {
@@ -36,10 +65,7 @@ public class ConfigDaoImpl extends AbstractDao<String, String> implements Config
 
     @Cacheable(value = CACHE_NAME, key = "#name")
     @Override public String get(String name) {
-        String value = get(name, null);
-        if (value == null)
-            logger.error("not found '" + name + "' in 'config' table");
-        return value;
+        return get(name, null);
     }
 
     @Cacheable(value = CACHE_NAME, key = "#name")

@@ -3,9 +3,7 @@ package org.sapl.commons.dao;
 import java.util.Date;
 import java.util.Map;
 
-public interface ConfigDao {
-
-    String CACHE_NAME = "config";
+public interface Config {
 
     Map getAll();
 
