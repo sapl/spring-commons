@@ -27,6 +27,8 @@ public class ErrorSupportController implements ErrorController {
         if (response.getStatus() == HttpStatus.NOT_FOUND.value())
             return new ApiException(response.getStatus(), HttpStatus.NOT_FOUND.getReasonPhrase()).toJson();
 
+        if (error != null && error instanceof ApiException) return ((ApiException) error).toJson();
+
         if (response.getStatus() == HttpStatus.INTERNAL_SERVER_ERROR.value() || error == null)
             return new ApiException(response.getStatus(), HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()).toJson();
 
