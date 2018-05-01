@@ -29,8 +29,10 @@ public class ErrorSupportController implements ErrorController {
 
         if (error != null && error instanceof ApiException) return ((ApiException) error).toJson();
 
-        if (response.getStatus() == HttpStatus.INTERNAL_SERVER_ERROR.value() || error == null)
+        if (response.getStatus() == HttpStatus.INTERNAL_SERVER_ERROR.value() || error == null) {
+            if (error != null) onInternalError(error);
             return new ApiException(response.getStatus(), HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()).toJson();
+        }
 
         return new ApiException(response.getStatus(), error.getMessage()).toJson();
     }
@@ -40,5 +42,8 @@ public class ErrorSupportController implements ErrorController {
         return PATH;
     }
 
+    protected void onInternalError(Throwable throwable) {
+
+    }
 
 }
