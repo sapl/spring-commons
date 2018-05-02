@@ -1,6 +1,7 @@
 package org.sapl.commons.controller;
 
 import org.sapl.commons.exception.ApiException;
+import org.sapl.commons.exception.NotFoundApiException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.boot.web.servlet.error.ErrorController;
@@ -26,6 +27,8 @@ public class ErrorSupportController implements ErrorController {
 
         if (response.getStatus() == HttpStatus.NOT_FOUND.value())
             return new ApiException(response.getStatus(), HttpStatus.NOT_FOUND.getReasonPhrase()).toJson();
+
+        if (error != null && error instanceof NotFoundApiException) response.setStatus(HttpStatus.NOT_FOUND.value());
 
         if (error != null && error instanceof ApiException) return ((ApiException) error).toJson();
 
