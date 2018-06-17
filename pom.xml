@@ -6,7 +6,7 @@
 
     <groupId>org.sapl</groupId>
     <artifactId>spring-commons</artifactId>
-    <version>1.0</version>
+    <version>1.1.2</version>
 
 
     <repositories>
@@ -59,6 +59,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+            <scope>provided</scope>
         </dependency>
 
 
