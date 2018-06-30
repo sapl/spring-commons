@@ -14,7 +14,7 @@ import java.util.TreeMap;
 
 public class ConfigJdbc {
 
-    private JdbcTemplate jdbcTemplate;
+    protected JdbcTemplate jdbcTemplate;
 
     @Autowired
     public void init(DataSource dataSource) {
